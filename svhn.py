@@ -27,7 +27,9 @@ for row in reader:
         #
         if row[0] in mystruct.keys():
             tmp=mystruct[row[0]]
-            tmp['label']=tmp['label']*10+int(row[1])
+            label=tmp['label']
+            label.append(int(row[1]))
+            tmp['label']=label
             tmp['left']=min(tmp['left'],int(row[2]))
             tmp['top']=min(tmp['top'],int(row[3]))
             tmp['right']=max(tmp['right'],int(row[2])+int(row[4]))
@@ -37,7 +39,9 @@ for row in reader:
             temp['name']=row[0]
             if row[1]=='10':
                 row[1]='0'
-            temp['label']=int(row[1])
+            label=[]
+            label.append(int(row[1]))
+            temp['label']=label
             temp['left']=int(row[2])
             temp['top']=int(row[3])
             temp['width']=int(row[4])
@@ -59,10 +63,15 @@ for k in mykeys:
     fpng_crop=fpng.crop((tmpdict['left'],tmpdict['top'],tmpdict['right'],tmpdict['bottom']))
     fpng_resized = fpng_crop.resize((28,28),Image.BICUBIC)
     fpng_data=np.array(fpng_resized, dtype='float32')
+    fpng_mean=np.mean(fpng_data, dtype='float32')
+    fpng_std = np.std(fpng_mean, dtype='float32', ddof=1)
+    if fpng_std < 1e-4:
+        fpng_std=1.0
+    fpng_data=(fpng_data-fpng_mean)/fpng_std
     if k =='5.png':
         print (k)        
         print(tmpdict)
-        #print(fpng_data)
+#        #print(fpng_data)
         fpng_resized.save('result.png')
 
 
