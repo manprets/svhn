@@ -50,9 +50,15 @@ for row in reader:
             temp['right']=int(row[2])+int(row[4])
             mystruct[row[0]]=temp
 
-mykeys=mystruct.keys()
+img_size=10
+mykeys = mystruct.keys()
 mykeys.sort()
-for k in mykeys:
+dataset = np.ndarray([len(mykeys),img_size,img_size],dtype='float32')
+labels = np.ones([len(mykeys),6], dtype=int) * 10
+
+#for k in mykeys:
+for idx in range(len(mykeys)):
+    k=mykeys[idx]
     tmpdict=mystruct[k]
     #print(tmpdict)
 
@@ -61,21 +67,22 @@ for k in mykeys:
     fpng=Image.open(fpath)
     fpng=fpng.convert('L')
     fpng_crop=fpng.crop((tmpdict['left'],tmpdict['top'],tmpdict['right'],tmpdict['bottom']))
-    fpng_resized = fpng_crop.resize((28,28),Image.BICUBIC)
+    fpng_resized = fpng_crop.resize((img_size,img_size),Image.BICUBIC)
     fpng_data=np.array(fpng_resized, dtype='float32')
     fpng_mean=np.mean(fpng_data, dtype='float32')
-    fpng_std = np.std(fpng_mean, dtype='float32', ddof=1)
-    if fpng_std < 1e-4:
-        fpng_std=1.0
-    fpng_data=(fpng_data-fpng_mean)/fpng_std
+    fpng_std = np.std(fpng_mean, dtype='float32')
+#    if fpng_std < 1e-4:
+#        fpng_std=1.0
+#    fpng_data=(fpng_data-fpng_mean)#/fpng_std
+    dataset[idx,:,:]=fpng_data[:,:]
     if k =='5.png':
         print (k)        
         print(tmpdict)
-#        #print(fpng_data)
+        #print(fpng_data)
         fpng_resized.save('result.png')
 
 
-
+print(dataset)
 
 
 #close file    
